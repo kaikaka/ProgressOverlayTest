@@ -1,6 +1,6 @@
 # ProgressOverlay
 
-![image](https://github.com/sugarAndsugar/ProgressOverlay/raw/master/bar.jpeg)
+![image](https://github.com/sugarAndsugar/ProgressOverlay/raw/master/Images/bar.jpeg)
 
 Requirements
 
