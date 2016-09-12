@@ -67,7 +67,7 @@ class ProgressOverlay: UIView {
   
   /// ProgressOverlay operation mode. The default is Indeterminate. (ProgressOverlay 显示模式 ，默认是 Indeterminate)
   var mode:ProgressOverlayMode  {
-    set(newValue) {
+    set {
       if newValue != modeProperty {
         modeProperty = newValue
         self.updateIndicators()
@@ -90,7 +90,7 @@ class ProgressOverlay: UIView {
    The minimum size of the Overlay bezel. Defaults to CGSizeZero (no minimum size).
    */
   var minSize:CGSize {
-    set (newValue) {
+    set {
       if !CGSizeEqualToSize(newValue, minSizeProperty) {
         minSizeProperty = newValue
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -115,7 +115,7 @@ class ProgressOverlay: UIView {
    * E.g., CGPointMake(0.f, ProgressOverlayMaxOffset) would position the Overlay centered on the bottom edge.
    */
   var offset:CGPoint {
-    set(newValue) {
+    set {
       if !CGPointEqualToPoint(offsetProperty, newValue) {
         offsetProperty = newValue
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -138,7 +138,7 @@ class ProgressOverlay: UIView {
    * (labels 和 indicators) 的颜色
    */
   var contentColor:UIColor {
-    set (newValue) {
+    set {
       if newValue != contentColorProperty {
         self.contentColorProperty = newValue
         self.updateViewsForColor(newValue)
@@ -736,7 +736,7 @@ class ProgressOverlay: UIView {
   /// The UIView (e.g., a UIImageView) to be shown when the Overlay is in CustomView.
   /// The view should implement intrinsicContentSize for proper sizing. For best results use approximately 37 by 37 pixels.
   var customView:UIView {
-    set (newValue) {
+    set {
       if newValue != customViewProperty {
         customViewProperty = newValue
         self.updateIndicators()
@@ -827,7 +827,7 @@ class OverlayBackgroundView: UIView {
   
   /// The background style.
   var style:OverlayBackgroundStyle {
-    set (newValue) {
+    set {
       if styleProperty != newValue {
         self.styleProperty = newValue
         self.updateForBackgroundStyle()
@@ -841,7 +841,7 @@ class OverlayBackgroundView: UIView {
   private var colorProperty:UIColor = UIColor.init(white: 0.8, alpha: 0.6)
   /// The background color or the blur tint color. (背景颜色)
   var color:UIColor {
-    set (newValue) {
+    set {
       if colorProperty != newValue && !newValue.isEqual(colorProperty) {
         self.colorProperty = newValue
         self.updateViewsForColor(newValue)
@@ -950,7 +950,7 @@ class OverlayRoundedButton: UIButton {
   }
   
   override var highlighted: Bool {
-    set (newValue) {
+    set {
       super.highlighted = newValue
       let baseColor:UIColor = self.titleColorForState(.Selected)!
       self.backgroundColor = highlighted ? baseColor.colorWithAlphaComponent(0.1) : UIColor.clearColor()
@@ -967,7 +967,7 @@ class OverlayBarProgressView: UIView {
   private var progressProperty:CGFloat!
   /// Progress (0.0 to 1.0)
   var progress:CGFloat {
-    set (newValue) {
+    set {
       if  newValue != progressProperty {
         self.progressProperty = newValue
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -985,7 +985,7 @@ class OverlayBarProgressView: UIView {
   /// Bar progress color.
   /// Defaults to white [UIColor whiteColor].
   var progressColor:UIColor {
-    set (newValue) {
+    set {
       if  newValue != progressColorProperty && !progressColorProperty.isEqual(newValue) {
         self.progressColorProperty = newValue
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -1003,7 +1003,7 @@ class OverlayBarProgressView: UIView {
   /// Bar background color.
   /// Defaults to white [UIColor whiteColor].
   var progressRemainingColor:UIColor {
-    set (newValue) {
+    set {
       if  newValue != progressRemainingColorProperty && !progressRemainingColorProperty.isEqual(newValue) {
         self.progressRemainingColorProperty = newValue
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -1140,7 +1140,7 @@ class OverlayRoundProgressView: UIView {
   private var progressProperty:CGFloat!
   /// Progress (0.0 to 1.0)
   var progress:CGFloat {
-    set (newValue) {
+    set {
       if  newValue != progressProperty {
         self.progressProperty = newValue
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -1161,7 +1161,7 @@ class OverlayRoundProgressView: UIView {
   /// Indicator progress color.
   /// Defaults to white [UIColor whiteColor].
   var progressTintColor:UIColor {
-    set (newValue) {
+    set {
       if  newValue != progressTintColorProperty && !progressTintColorProperty.isEqual(newValue) {
         self.progressTintColorProperty = newValue
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -1179,7 +1179,7 @@ class OverlayRoundProgressView: UIView {
   /// Indicator background (non-progress) color.
   /// Defaults to translucent white (alpha 0.1).
   var backgroundTintColor:UIColor {
-    set (newValue) {
+    set {
       if  newValue != backgroundTintColorProperty && !backgroundTintColorProperty.isEqual(newValue) {
         self.backgroundTintColorProperty = newValue
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
