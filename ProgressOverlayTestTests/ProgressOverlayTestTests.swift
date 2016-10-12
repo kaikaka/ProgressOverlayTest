@@ -31,13 +31,13 @@ class ProgressOverlayTestTests: XCTestCase {
     
     func testPerformanceExample() {
         // This is an example of a performance test case.
-        self.measureBlock {
+        self.measure {
             // Put the code you want to measure the time of here.
         }
     }
   
   func testNonAnimatedConvenienceoverlayPresentation() {
-    let rootViewController = UIApplication.sharedApplication().keyWindow?.rootViewController
+    let rootViewController = UIApplication.shared.keyWindow?.rootViewController
     let rootView = rootViewController?.view
     let overlay = ProgressOverlay.showOnView(rootView, animated: false)
     XCTAssertNotNil(overlay, "A overlay should be created.")
@@ -48,20 +48,20 @@ class ProgressOverlayTestTests: XCTestCase {
     self.testOverlayIsVisible(overlay, rootView: rootView!)
   }
   
-  func testOverlayIsVisible(overlay:ProgressOverlay,rootView:UIView) {
+  func testOverlayIsVisible(_ overlay:ProgressOverlay,rootView:UIView) {
     XCTAssertEqual(overlay.superview, rootView, "The overlay should be added to the view.")
     XCTAssertEqual(overlay.alpha, 1.0, "The overlay should be visible.")
     XCTAssertFalse(overlay.hidden, "The overlay should be visible.")
   }
   
-  func testOverlayIsHidenAndRemoved(overlay:ProgressOverlay,rootView:UIView) {
+  func testOverlayIsHidenAndRemoved(_ overlay:ProgressOverlay,rootView:UIView) {
     XCTAssertFalse(rootView.subviews.contains(overlay), "The overlay should not be part of the view hierarchy.")
     XCTAssertEqual(overlay.alpha, 0.0, "The overlay should be faded out.")
     XCTAssertNil(overlay.superview, "The overlay should not have a superview.")
   }
   
   func testAnimatedConvenienceoverlayPresentation() {
-    let rootViewController = UIApplication.sharedApplication().keyWindow?.rootViewController
+    let rootViewController = UIApplication.shared.keyWindow?.rootViewController
     let rootView = rootViewController?.view
     
     let overlay = ProgressOverlay.showOnView(rootView, animated: false)
@@ -78,16 +78,16 @@ class ProgressOverlayTestTests: XCTestCase {
   }
   
   func testCompletionBlock() {
-    let rootViewController = UIApplication.sharedApplication().keyWindow?.rootViewController
+    let rootViewController = UIApplication.shared.keyWindow?.rootViewController
     let rootView = rootViewController?.view
     
-    self.hideExpectation = expectationWithDescription("The completionBlock: should have been called.")
+    self.hideExpectation = expectation(description: "The completionBlock: should have been called.")
     let overlay = ProgressOverlay.showOnView(rootView, animated: true)
     overlay.completionBlock = { () in
       self.hideExpectation.fulfill()
     }
     overlay.hideAnimated(true)
-    waitForExpectationsWithTimeout(5.0) { (error) in
+    waitForExpectations(timeout: 5.0) { (error) in
       
     }
   }
@@ -95,21 +95,21 @@ class ProgressOverlayTestTests: XCTestCase {
   // MARK: - Delay
   
   func testDelayedHide() {
-    let rootViewController = UIApplication.sharedApplication().keyWindow?.rootViewController
+    let rootViewController = UIApplication.shared.keyWindow?.rootViewController
     let rootView = rootViewController?.view
     
-    self.hideExpectation = self.expectationWithDescription("The hudWasHidden: delegate should have been called.")
+    self.hideExpectation = self.expectation(description: "The hudWasHidden: delegate should have been called.")
     let overlay = ProgressOverlay.showOnView(rootView, animated: true)
     
     XCTAssertNotNil(overlay,"A overlay should be created.")
     overlay.hideAnimated(true, delay: 2)
     
     self.testOverlayIsVisible(overlay, rootView: rootView!)
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) { () -> Void in
+    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(3 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) { () -> Void in
       self.testOverlayIsHidenAndRemoved(overlay, rootView: rootView!)
       self.hideExpectation.fulfill()
     }
-    waitForExpectationsWithTimeout(5) { (eror) in
+    waitForExpectations(timeout: 5) { (eror) in
       
     }
   }
@@ -117,7 +117,7 @@ class ProgressOverlayTestTests: XCTestCase {
   // MARK: - Ruse
   
   func testNonAnimatedHudReuse() {
-    let rootViewController = UIApplication.sharedApplication().keyWindow?.rootViewController
+    let rootViewController = UIApplication.shared.keyWindow?.rootViewController
     let rootView = rootViewController?.view
     
     let overlay = ProgressOverlay.init(view:rootView!)
@@ -136,10 +136,10 @@ class ProgressOverlayTestTests: XCTestCase {
   }
   
   func testUnfinishedHidingAnimation() {
-    let rootViewController = UIApplication.sharedApplication().keyWindow?.rootViewController
+    let rootViewController = UIApplication.shared.keyWindow?.rootViewController
     let rootView = rootViewController?.view
     
-    self.hideExpectation = self.expectationWithDescription("The hudWasHidden: delegate should have been called.")
+    self.hideExpectation = self.expectation(description: "The hudWasHidden: delegate should have been called.")
     let overlay = ProgressOverlay.showOnView(rootView, animated: true)
     overlay.backgroundView.layer.removeAllAnimations()
     
@@ -147,11 +147,11 @@ class ProgressOverlayTestTests: XCTestCase {
     overlay.hideAnimated(true, delay: 2)
     
     self.testOverlayIsVisible(overlay, rootView: rootView!)
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) { () -> Void in
+    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(3 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) { () -> Void in
       self.testOverlayIsHidenAndRemoved(overlay, rootView: rootView!)
       self.hideExpectation.fulfill()
     }
-    waitForExpectationsWithTimeout(5) { (eror) in
+    waitForExpectations(timeout: 5) { (eror) in
       
     }
   }
@@ -159,10 +159,10 @@ class ProgressOverlayTestTests: XCTestCase {
   // MARK: - Min show time
   
   func testMinShowTime() {
-    let rootViewController = UIApplication.sharedApplication().keyWindow?.rootViewController
+    let rootViewController = UIApplication.shared.keyWindow?.rootViewController
     let rootView = rootViewController?.view
     
-    self.hideExpectation = self.expectationWithDescription("The hudWasHidden: delegate should have been called.")
+    self.hideExpectation = self.expectation(description: "The hudWasHidden: delegate should have been called.")
     let overlay = ProgressOverlay.init(view:rootView!)
     overlay.minShowTime = 2
     rootView?.addSubview(overlay)
@@ -172,14 +172,14 @@ class ProgressOverlayTestTests: XCTestCase {
     
     var checkedAfterOneSecond = false
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) { () -> Void in
+    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) { () -> Void in
      self.testOverlayIsVisible(overlay, rootView: rootView!)
       checkedAfterOneSecond = true
       XCTAssertTrue(checkedAfterOneSecond)
       self.hideExpectation.fulfill()
     }
     
-    waitForExpectationsWithTimeout(5.0) { (error) in
+    waitForExpectations(timeout: 5.0) { (error) in
       
     }
   }
@@ -187,10 +187,10 @@ class ProgressOverlayTestTests: XCTestCase {
   // MARK: - Grace time
   
   func testGraceTime() {
-    let rootViewController = UIApplication.sharedApplication().keyWindow?.rootViewController
+    let rootViewController = UIApplication.shared.keyWindow?.rootViewController
     let rootView = rootViewController?.view
     
-    self.hideExpectation = self.expectationWithDescription("The hudWasHidden: delegate should have been called.")
+    self.hideExpectation = self.expectation(description: "The hudWasHidden: delegate should have been called.")
     let overlay = ProgressOverlay.init(view:rootView!)
     overlay.graceTime = 2
     rootView?.addSubview(overlay)
@@ -200,18 +200,18 @@ class ProgressOverlayTestTests: XCTestCase {
     XCTAssertEqual(overlay.alpha, 0.0, "The overlay should not be visible.")
     XCTAssertFalse(overlay.hidden, "The overlay should be visible.")
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) { () -> Void in
+    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) { () -> Void in
       XCTAssertEqual(overlay.superview, rootView, "The overlay should be added to the view.")
       XCTAssertEqual(overlay.alpha, 0.0, "The overlay should not be visible.")
       XCTAssertFalse(overlay.hidden, "The overlay should be visible.")
     }
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) { () -> Void in
+    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(3 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) { () -> Void in
       self.testOverlayIsVisible(overlay, rootView: rootView!)
       overlay.hideAnimated(true)
       self.hideExpectation.fulfill()
     }
-    waitForExpectationsWithTimeout(5) { (error) in
+    waitForExpectations(timeout: 5) { (error) in
       
     }
   }

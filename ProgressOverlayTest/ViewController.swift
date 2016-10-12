@@ -12,7 +12,7 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
   
   @IBOutlet weak var tableView: UITableView!
   
-  typealias demoMethod = ViewController -> () -> Void
+  typealias demoMethod = (ViewController) -> () -> Void
   
   var progressOverlay:ProgressOverlay!
   
@@ -47,38 +47,38 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
   
   // MARK: - Data source: supply the table view with the demo button cells.
   
-  func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return demos.count
   }
   
-  func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell:TableViewCell = tableView.dequeueReusableCellWithIdentifier("mainCell", forIndexPath: indexPath) as! TableViewCell
-    cell.demoButton.setTitle(demos[indexPath.row].0, forState: .Normal)
-    cell.demoButton.tag = indexPath.row
-    cell.demoButton.addTarget(self, action: #selector(demoButtonTapped(_:)), forControlEvents: .TouchUpInside)
+  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell:TableViewCell = tableView.dequeueReusableCell(withIdentifier: "mainCell", for: indexPath) as! TableViewCell
+    cell.demoButton.setTitle(demos[(indexPath as NSIndexPath).row].0, for: UIControlState())
+    cell.demoButton.tag = (indexPath as NSIndexPath).row
+    cell.demoButton.addTarget(self, action: #selector(demoButtonTapped(_:)), for: .touchUpInside)
     return cell
   }
   
   // MARK: - NSURLConnection Delegate methods
   
-  func connection(connection: NSURLConnection, didReceiveResponse response: NSURLResponse) {
+  func connection(_ connection: NSURLConnection, didReceive response: URLResponse) {
     expectedLength = max(response.expectedContentLength, 1)
     currentLength = 0
-    progressOverlay?.mode = .Determinate
+    progressOverlay?.mode = .determinate
   }
   
-  func connection(connection: NSURLConnection, didReceiveData data: NSData) {
-    currentLength += data.length
+  func connection(_ connection: NSURLConnection, didReceive data: Data) {
+    currentLength += data.count
     progressOverlay.forProgress(Double(currentLength) / Double(expectedLength))
   }
   
-  func connectionDidFinishLoading(connection: NSURLConnection) {
+  func connectionDidFinishLoading(_ connection: NSURLConnection) {
     progressOverlay?.customView = UIImageView(image: UIImage(named: "Checkmark"))
-    progressOverlay?.mode = .CustomView
+    progressOverlay?.mode = .customView
     progressOverlay?.hideAnimated(true, delay: 2.0)
   }
   
-  func connection(connection: NSURLConnection, didFailWithError error: NSError) {
+  func connection(_ connection: NSURLConnection, didFailWithError error: Error) {
     progressOverlay?.hideAnimated(true)
   }
   
@@ -106,35 +106,35 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     sleep(2)
     
     // Switch to determinate mode
-    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-      self.progressOverlay?.mode = .Determinate
+    DispatchQueue.main.async(execute: { () -> Void in
+      self.progressOverlay?.mode = .determinate
       self.progressOverlay?.label.text = "Progress"
     })
     
     var progress:Double = 0.0
     while (progress < 1.0) {
       progress += 0.01
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         self.progressOverlay?.forProgress(progress)
       })
       usleep(50000)
     }
     
     // Back to indeterminate mode
-    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-      self.progressOverlay?.mode = .Indeterminate
+    DispatchQueue.main.async(execute: { () -> Void in
+      self.progressOverlay?.mode = .indeterminate
       self.progressOverlay?.label.text = "Cleaning up"
     })
     
     sleep(2)
     
     // UIImageView is a UIKit class, we have to initialise it on the main thread
-    dispatch_sync(dispatch_get_main_queue()) {
+    DispatchQueue.main.sync {
       let image = UIImage(named: "Checkmark")
       let imageView = UIImageView(image: image)
       
       self.progressOverlay?.customView = imageView
-      self.progressOverlay?.mode = .CustomView
+      self.progressOverlay?.mode = .customView
       self.progressOverlay?.label.text = "Completed"
     }
     
@@ -143,10 +143,11 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
 
   func doSomeNetworkWorkWithProgress() {
 
-    guard let url = NSURL(string: "https://support.apple.com/library/APPLE/APPLECARE_ALLGEOS/HT1425/sample_iPod.m4v.zip") else { return }
-    let request = NSURLRequest(URL: url)
+    guard let url = URL(string: "https://support.apple.com/library/APPLE/APPLECARE_ALLGEOS/HT1425/sample_iPod.m4v.zip") else { return }
+    let request = URLRequest(url: url)
     
     // TODO: Add a demo that uses NSURLSession instead of the deprecated NSURLConnection.
+    
     let connection = NSURLConnection(request: request, delegate: self)
     connection?.start()
     
@@ -154,7 +155,7 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     progressOverlay.removeFromSuperViewOnHide = true
   }
   
-  func demoButtonTapped(button:UIButton) {
+  func demoButtonTapped(_ button:UIButton) {
     // Run the requested demo.
     let demoIndex = button.tag
     (demos[demoIndex].1(self))()
@@ -170,11 +171,11 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // The overlay disables all input on the view (uses the highest view possible in the view hierarchy).
     progressOverlay = ProgressOverlay.showOnView(self.navigationController?.view, animated: true)
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWork()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         self.progressOverlay?.hideAnimated(true)
       })
     })
@@ -186,11 +187,11 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // set the label text (设置文本)
     progressOverlay.label.text = "Loading"
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWork()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         self.progressOverlay.hideAnimated(true)
       })
     })
@@ -205,11 +206,11 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // Set detail label text (设置详情文本)
     progressOverlay.detailsLabel.text = "Parsing data\n(1/1)"
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWork()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         progressOverlay.hideAnimated(true)
       })
     })
@@ -219,15 +220,15 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // The overlay disables all input on the view (uses the highest view possible in the view hierarchy).
     progressOverlay = ProgressOverlay.showOnView(self.navigationController?.view, animated: true)
     
-    progressOverlay.mode = ProgressOverlayMode.Determinate
+    progressOverlay.mode = ProgressOverlayMode.determinate
     // set the label text (设置文本)
     progressOverlay.label.text = "Loading"
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWorkWithProgress()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         self.progressOverlay.hideAnimated(true)
       })
     })
@@ -237,15 +238,15 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // The overlay disables all input on the view (uses the highest view possible in the view hierarchy).
     progressOverlay = ProgressOverlay.showOnView(self.navigationController?.view, animated: true)
     
-    progressOverlay.mode = ProgressOverlayMode.AnnularDeterminate
+    progressOverlay.mode = ProgressOverlayMode.annularDeterminate
     // set the label text (设置文本)
     progressOverlay.label.text = "Loading"
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWorkWithProgress()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         self.progressOverlay.hideAnimated(true)
       })
     })
@@ -255,15 +256,15 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // The overlay disables all input on the view (uses the highest view possible in the view hierarchy).
     progressOverlay = ProgressOverlay.showOnView(self.navigationController?.view, animated: true)
     
-    progressOverlay.mode = ProgressOverlayMode.DeterminateHorizontalBar
+    progressOverlay.mode = ProgressOverlayMode.determinateHorizontalBar
     // set the label text (设置文本)
     progressOverlay.label.text = "Loading"
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWorkWithProgress()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         self.progressOverlay.hideAnimated(true)
       })
     })
@@ -273,16 +274,16 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // The overlay disables all input on the view (uses the highest view possible in the view hierarchy).
     let progressOverlay = ProgressOverlay.showOnView(self.navigationController?.view, animated: true)
     
-    progressOverlay.mode = ProgressOverlayMode.CustomView
+    progressOverlay.mode = ProgressOverlayMode.customView
     // Set an image view with a checkmark.
-    let image = UIImage.init(named: "Checkmark")?.imageWithRenderingMode(.AlwaysTemplate)
+    let image = UIImage.init(named: "Checkmark")?.withRenderingMode(.alwaysTemplate)
     progressOverlay.customView = UIImageView.init(image: image)
     progressOverlay.square = true
     
     // Optional label text.
     progressOverlay.label.text = "Done"
     
-    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+    DispatchQueue.main.async(execute: { () -> Void in
       progressOverlay.hideAnimated(true, delay: 3.0)
     })
   }
@@ -294,13 +295,13 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     //Set some text to show the initial status.
     progressOverlay.label.text = "Done"
     
-    progressOverlay.minSize = CGSizeMake(150.0, 100.0)
+    progressOverlay.minSize = CGSize(width: 150.0, height: 100.0)
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWorkWithMixedProgress()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         self.progressOverlay.hideAnimated(true)
       })
     })
@@ -311,13 +312,13 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // The overlay disables all input on the view (uses the highest view possible in the view hierarchy).
     let progressOverlay = ProgressOverlay.showOnView(self.navigationController?.view, animated: true)
     
-    progressOverlay.mode = ProgressOverlayMode.Text
+    progressOverlay.mode = ProgressOverlayMode.text
     progressOverlay.label.text = "Message here!"
     
     // Move to bottm center.
-    progressOverlay.offset = CGPointMake(0.0, ProgressOverlayMaxOffset)
+    progressOverlay.offset = CGPoint(x: 0.0, y: ProgressOverlayMaxOffset)
     
-    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+    DispatchQueue.main.async(execute: { () -> Void in
       progressOverlay.hideAnimated(true, delay: 3.0)
     })
   }
@@ -327,18 +328,18 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // The overlay disables all input on the view (uses the highest view possible in the view hierarchy).
     progressOverlay = ProgressOverlay.showOnView(self.navigationController?.view, animated: true)
     
-    progressOverlay.mode = ProgressOverlayMode.Determinate
+    progressOverlay.mode = ProgressOverlayMode.determinate
     // set the label text (设置文本)
     progressOverlay.label.text = "Loading"
     
-    progressOverlay.button.setTitle("Cancel", forState: .Normal)
-    progressOverlay.button.addTarget(self, action: #selector(cancelWork), forControlEvents: .TouchUpInside)
+    progressOverlay.button.setTitle("Cancel", for: UIControlState())
+    progressOverlay.button.addTarget(self, action: #selector(cancelWork), for: .touchUpInside)
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWorkWithProgress()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         self.progressOverlay.hideAnimated(true)
       })
     })
@@ -347,11 +348,11 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
   func onWindow(){
     
     let progressOverlay = ProgressOverlay.showOnView(self.view.window, animated: true)
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWork()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         progressOverlay.hideAnimated(true)
       })
     })
@@ -365,14 +366,14 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // The overlay disables all input on the view (uses the highest view possible in the view hierarchy).
     let progressOverlay = ProgressOverlay.showOnView(self.navigationController?.view, animated: true)
     
-    progressOverlay.backgroundView.style = OverlayBackgroundStyle.SolidColor
+    progressOverlay.backgroundView.style = OverlayBackgroundStyle.solidColor
     progressOverlay.backgroundView.color = UIColor.init(white: 0.0, alpha: 0.1)
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWork()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         progressOverlay.hideAnimated(true)
       })
     })
@@ -384,11 +385,11 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     progressOverlay.contentColor = UIColor.init(red: 0.0, green: 0.6, blue: 0.7, alpha: 1.0)
     progressOverlay.label.text = "Loading..."
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+    DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in
       // Do something useful in the background
       self.doSomeWork()
       
-      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      DispatchQueue.main.async(execute: { () -> Void in
         progressOverlay.hideAnimated(true)
       })
     })
