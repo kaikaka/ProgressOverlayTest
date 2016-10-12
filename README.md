@@ -30,7 +30,7 @@ This is for Objective-C <a href="https://github.com/jdg/MBProgressHUD"> MBProgre
 
 <h2>Requirements</h2>
 
-ProgressOverlay works on iOS 9+ and requires ARC to build
+ProgressOverlay works on iOS 9+ ,Swift 3.0 and requires ARC to build
 
 You will need the latest developer tools in order to build ProgressOverlay. Old Xcode versions might work, but compatibility will not be explicitly maintained.
 
