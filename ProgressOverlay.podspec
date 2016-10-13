@@ -5,9 +5,10 @@ Pod::Spec.new do |s|
   s.summary      = "This is Swift for MBProgressHUD"
   s.homepage     = "http://yoon.farbox.com/"
   s.license      = "MIT"
-  s.authors      = { 'sugarAndsugar' => 'yoon1583@foxmail.com'}
+  s.authors      = { '观剑不则声' => 'yoon1583@foxmail.com'}
   s.platform     = :ios, "9.0"
-  s.source       = { :git => "https://github.com/sugarAndsugar/ProgressOverlay.git", :tag => s.version }
-  s.source_files = 'ProgressOverlay', 'ProgressOverlay/**/*.{h,m}'
+  s.ios.deployment_target = '9.0'
+  s.source       = { :git => "https://github.com/sugarAndsugar/ProgressOverlay.git", :tag => 's.version' }
+  s.source_files = 'ProgressOverlay/*.{h,m}'
   s.requires_arc = true
 end
