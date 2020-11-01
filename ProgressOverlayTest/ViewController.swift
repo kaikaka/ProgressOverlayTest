@@ -53,7 +53,7 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell:TableViewCell = tableView.dequeueReusableCell(withIdentifier: "mainCell", for: indexPath) as! TableViewCell
-    cell.demoButton.setTitle(demos[(indexPath as NSIndexPath).row].0, for: UIControlState())
+    cell.demoButton.setTitle(demos[(indexPath as NSIndexPath).row].0, for: UIControl.State())
     cell.demoButton.tag = (indexPath as NSIndexPath).row
     cell.demoButton.addTarget(self, action: #selector(demoButtonTapped(_:)), for: .touchUpInside)
     return cell
@@ -68,7 +68,7 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
   }
   
   func connection(_ connection: NSURLConnection, didReceive data: Data) {
-    currentLength += data.count
+    currentLength += Int64(data.count)
     progressOverlay.forProgress(Double(currentLength) / Double(expectedLength))
   }
   
@@ -155,13 +155,13 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     progressOverlay.removeFromSuperViewOnHide = true
   }
   
-  func demoButtonTapped(_ button:UIButton) {
+    @objc func demoButtonTapped(_ button:UIButton) {
     // Run the requested demo.
     let demoIndex = button.tag
     (demos[demoIndex].1(self))()
   }
   
-  func cancelWork() {
+    @objc func cancelWork() {
     self.canceled = true
   }
   
@@ -332,7 +332,7 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     // set the label text (设置文本)
     progressOverlay.label.text = "Loading"
     
-    progressOverlay.button.setTitle("Cancel", for: UIControlState())
+    progressOverlay.button.setTitle("Cancel", for: UIControl.State())
     progressOverlay.button.addTarget(self, action: #selector(cancelWork), for: .touchUpInside)
     
     DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: { () -> Void in

@@ -230,7 +230,7 @@ class ProgressOverlay: UIView {
         
         // Make it invisible for now (当前不可见)
         self.alpha = 0.0
-        self.autoresizingMask = UIViewAutoresizing.init(rawValue: UIViewAutoresizing.flexibleWidth.rawValue | UIViewAutoresizing.flexibleHeight.rawValue)
+        self.autoresizingMask = UIView.AutoresizingMask.init(rawValue: UIView.AutoresizingMask.flexibleWidth.rawValue | UIView.AutoresizingMask.flexibleHeight.rawValue)
         // group opacity (这项属性默认是启用的。当它被启用时，一些动画将会变得不流畅，它也可以在layer层上被控制)
         self.layer.allowsGroupOpacity = false
         
@@ -265,7 +265,7 @@ class ProgressOverlay: UIView {
         let backgroundView = OverlayBackgroundView.init(frame: self.bounds)
         backgroundView.style = .solidColor
         backgroundView.backgroundColor = UIColor.clear
-        backgroundView.autoresizingMask = UIViewAutoresizing.init(rawValue: UIViewAutoresizing.flexibleWidth.rawValue | UIViewAutoresizing.flexibleHeight.rawValue)
+        backgroundView.autoresizingMask = UIView.AutoresizingMask.init(rawValue: UIView.AutoresizingMask.flexibleWidth.rawValue | UIView.AutoresizingMask.flexibleHeight.rawValue)
         backgroundView.alpha = 0.0
         self.addSubview(backgroundView)
         self.backgroundView = backgroundView
@@ -301,13 +301,13 @@ class ProgressOverlay: UIView {
         let button = OverlayRoundedButton(type:.custom)
         button.titleLabel?.textAlignment = .center
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: PODefaultDetailsLabelFontSize)
-        button.setTitleColor(defaultColor, for: UIControlState())
+        button.setTitleColor(defaultColor, for: UIControl.State())
         self.button = button
         
         for view in [label,detailsLabel,button] {
             view.translatesAutoresizingMaskIntoConstraints = false
-            view.setContentCompressionResistancePriority(998, for: .horizontal)
-            view.setContentCompressionResistancePriority(998, for: .vertical)
+            view.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 998), for: .horizontal)
+            view.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 998), for: .vertical)
             bezelView.addSubview(view)
         }
         
@@ -338,7 +338,7 @@ class ProgressOverlay: UIView {
             if !isActivityIndicator {
                 // Update to indeterminate indicator (更新)
                 indicator?.removeFromSuperview()
-                indicator = UIActivityIndicatorView.init(activityIndicatorStyle: .whiteLarge)
+                indicator = UIActivityIndicatorView.init(style: .whiteLarge)
                 (indicator as! UIActivityIndicatorView).startAnimating()
                 self.bezelView.addSubview(indicator!)
             }
@@ -372,8 +372,8 @@ class ProgressOverlay: UIView {
             indicator?.setValue(self.progress, forKey: "progress")
         }
         
-        indicator?.setContentCompressionResistancePriority(998, for: .horizontal)
-        indicator?.setContentCompressionResistancePriority(998, for: .vertical)
+        indicator?.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 998), for: .horizontal)
+        indicator?.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 998), for: .vertical)
         
         self.updateViewsForColor(self.contentColor)
         self.setNeedsUpdateConstraints()
@@ -383,7 +383,7 @@ class ProgressOverlay: UIView {
         
         self.label.textColor = color
         self.detailsLabel.textColor = color
-        self.button.setTitleColor(color, for: UIControlState())
+        self.button.setTitleColor(color, for: UIControl.State())
         
         //UIAppearance settings are prioritized. If they are preset the set color is ignored.  (UIAppearance 设置优先级)
         let indicator = self.indicator
@@ -464,32 +464,32 @@ class ProgressOverlay: UIView {
         let offset = self.offset
         var centeringConstraints:Array = [NSLayoutConstraint]()
         
-        centeringConstraints.append(NSLayoutConstraint.init(item: bezel, attribute: NSLayoutAttribute.centerX, relatedBy: NSLayoutRelation.equal, toItem: self, attribute: .centerX, multiplier: 1.0, constant: offset.x))
+        centeringConstraints.append(NSLayoutConstraint.init(item: bezel, attribute: NSLayoutConstraint.Attribute.centerX, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: .centerX, multiplier: 1.0, constant: offset.x))
         centeringConstraints.append(NSLayoutConstraint.init(item: bezel, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1.0, constant: offset.y))
-        self.applyPriority(999, constraints: centeringConstraints)
+        self.applyPriority(UILayoutPriority(rawValue: 999), constraints: centeringConstraints)
         self.addConstraints(centeringConstraints)
         
-        // Ensure minimum side margin is kept (保证最小的侧边)
+        // Ensure minimum side margin is kept (保证最小的侧边 VFL)
         var sideConstraints = Array<NSLayoutConstraint>()
-        sideConstraints += NSLayoutConstraint.constraints(withVisualFormat: "|-(>=margin)-[bezel]-(>=margin)-|", options: NSLayoutFormatOptions(), metrics: metrics, views: ["bezel":bezel])
-        sideConstraints += NSLayoutConstraint.constraints(withVisualFormat: "V:|-(>=margin)-[bezel]-(>=margin)-|", options: NSLayoutFormatOptions(), metrics: metrics, views: ["bezel":bezel])
-        self.applyPriority(999, constraints: sideConstraints)
+        sideConstraints += NSLayoutConstraint.constraints(withVisualFormat: "|-(>=margin)-[bezel]-(>=margin)-|", options: NSLayoutConstraint.FormatOptions(), metrics: metrics, views: ["bezel":bezel])
+        sideConstraints += NSLayoutConstraint.constraints(withVisualFormat: "V:|-(>=margin)-[bezel]-(>=margin)-|", options: NSLayoutConstraint.FormatOptions(), metrics: metrics, views: ["bezel":bezel])
+        self.applyPriority(UILayoutPriority(rawValue: 999), constraints: sideConstraints)
         self.addConstraints(sideConstraints)
         
         // Minmum bezel size,if set (bezel 最小尺寸)
         let minimumSize = self.minSize
         if !minimumSize.equalTo(CGSize.zero) {
             var minSizeConstraints = Array<NSLayoutConstraint>()
-            minSizeConstraints.append(NSLayoutConstraint.init(item: bezel, attribute: NSLayoutAttribute.width, relatedBy: NSLayoutRelation.greaterThanOrEqual, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: minimumSize.width))
-            minSizeConstraints.append(NSLayoutConstraint.init(item: bezel, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.greaterThanOrEqual, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: minimumSize.height))
-            self.applyPriority(997, constraints: minSizeConstraints)
+            minSizeConstraints.append(NSLayoutConstraint.init(item: bezel, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.greaterThanOrEqual, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: minimumSize.width))
+            minSizeConstraints.append(NSLayoutConstraint.init(item: bezel, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.greaterThanOrEqual, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: minimumSize.height))
+            self.applyPriority(UILayoutPriority(rawValue: 997), constraints: minSizeConstraints)
             bezelConstraints += minSizeConstraints
         }
         
         // Square aspect ratio, if set (宽高比)
         if self.square {
             let square = NSLayoutConstraint.init(item: bezel, attribute: .height, relatedBy: .equal, toItem: bezel, attribute: .width, multiplier: 1.0, constant: 0)
-            square.priority = 997
+            square.priority = UILayoutPriority(rawValue: 997)
             bezelConstraints.append(square)
         }
         
@@ -510,20 +510,20 @@ class ProgressOverlay: UIView {
             // Center in bezel （居中）
             bezelConstraints.append(NSLayoutConstraint.init(item: view!, attribute: .centerX, relatedBy: .equal, toItem: bezel, attribute: .centerX, multiplier: 1.0, constant: 0.0))
             // Ensure the minimum edge margin is kept
-            bezelConstraints += NSLayoutConstraint.constraints(withVisualFormat: "|-(>=margin)-[view]-(>=margin)-|", options: NSLayoutFormatOptions(), metrics: metrics, views: ["view":view!])
+            bezelConstraints += NSLayoutConstraint.constraints(withVisualFormat: "|-(>=margin)-[view]-(>=margin)-|", options: NSLayoutConstraint.FormatOptions(), metrics: metrics, views: ["view":view!])
             
             // Element spacing
             if idx == 0 {
                 // First, ensure spacing to bezel edge
-                bezelConstraints.append(NSLayoutConstraint.init(item: view!, attribute: NSLayoutAttribute.top, relatedBy: .equal, toItem: bezel, attribute: NSLayoutAttribute.top, multiplier: 1.0, constant: 0.0))
+                bezelConstraints.append(NSLayoutConstraint.init(item: view!, attribute: NSLayoutConstraint.Attribute.top, relatedBy: .equal, toItem: bezel, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0))
             } else if (idx == subViewsNS.count - 1) {
                 // Last, ensure spacing to bezel edge
-                bezelConstraints.append(NSLayoutConstraint.init(item: view!, attribute: NSLayoutAttribute.bottom, relatedBy: .equal, toItem: bezel, attribute: NSLayoutAttribute.bottom, multiplier: 1.0, constant: 0.0))
+                bezelConstraints.append(NSLayoutConstraint.init(item: view!, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: .equal, toItem: bezel, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0.0))
             }
             if idx > 0 {
                 // Has previous
                 let itemView:UIView = subViewsNS[idx - 1] as! UIView
-                let padding = NSLayoutConstraint.init(item: view!, attribute: NSLayoutAttribute.top, relatedBy: .equal, toItem: itemView, attribute: .bottom, multiplier: 1.0, constant: 0.0)
+                let padding = NSLayoutConstraint.init(item: view!, attribute: NSLayoutConstraint.Attribute.top, relatedBy: .equal, toItem: itemView, attribute: .bottom, multiplier: 1.0, constant: 0.0)
                 bezelConstraints.append(padding)
                 paddingConstraints.append(padding)
             }
@@ -554,7 +554,7 @@ class ProgressOverlay: UIView {
             let firstView = padding.firstItem
             let secondView = padding.secondItem
             
-            let firstVisible = !firstView.isHidden && !firstView.intrinsicContentSize.equalTo(CGSize.zero)
+            let firstVisible = !(firstView?.isHidden)! && !(firstView?.intrinsicContentSize.equalTo(CGSize.zero))!
             let secondVisible = !secondView!.isHidden && !secondView!.intrinsicContentSize.equalTo(CGSize.zero)
             
             // Set if both views are visible or if there's a visible view on top that doesn't have padding
@@ -583,7 +583,7 @@ class ProgressOverlay: UIView {
         
         if self.graceTime > 0.0 {
             let timer = Timer.init(timeInterval: self.graceTime, target: self, selector: #selector(self.handleGraceTimer(_:)), userInfo: nil, repeats: false)
-            RunLoop.current.add(timer, forMode: RunLoopMode.commonModes)
+            RunLoop.current.add(timer, forMode: RunLoop.Mode.common)
             self.graceTimer = timer
         } else {
             self.showUsingAnimation(animated)
@@ -600,7 +600,7 @@ class ProgressOverlay: UIView {
             let interv:TimeInterval = Date().timeIntervalSince(self.showStarted!)
             if interv < self.minShowTime {
                 let timer = Timer.init(timeInterval: self.minShowTime - interv, target: self, selector: #selector(self.handleMinShowTimer(_:)), userInfo: nil, repeats: false)
-                RunLoop.current.add(timer, forMode: RunLoopMode.commonModes)
+                RunLoop.current.add(timer, forMode: RunLoop.Mode.common)
                 self.minShowTimer = timer
                 return
             }
@@ -611,22 +611,22 @@ class ProgressOverlay: UIView {
     
     func hideAnimated(_ animated:Bool,delay:TimeInterval) {
         let timer = Timer.init(timeInterval:delay, target: self, selector: #selector(self.handleHideTimer(_:)), userInfo: animated, repeats: false)
-        RunLoop.current.add(timer, forMode: RunLoopMode.commonModes)
+        RunLoop.current.add(timer, forMode: RunLoop.Mode.common)
         self.hideDelayTimer = timer
     }
     // MARK: - Timer Callbacks
     
-    func handleGraceTimer(_ theTimer:Timer) {
+    @objc func handleGraceTimer(_ theTimer:Timer) {
         if !self.finished {
             self.showUsingAnimation(self.userAnimation)
         }
     }
     
-    func handleMinShowTimer(_ theTimer:Timer) {
+    @objc func handleMinShowTimer(_ theTimer:Timer) {
         self.hideUsingAnimation(self.userAnimation)
     }
     
-    func handleHideTimer(_ theTimer:Timer) {
+    @objc func handleHideTimer(_ theTimer:Timer) {
         
         self.hideAnimated(((theTimer.userInfo! as AnyObject).boolValue)!)
     }
@@ -730,7 +730,7 @@ class ProgressOverlay: UIView {
         }
     }
     
-    func updateProgressFormProgressObject() {
+    @objc func updateProgressFormProgressObject() {
         self.progress = (self.progressObject?.fractionCompleted)!
     }
     
@@ -773,7 +773,7 @@ class ProgressOverlay: UIView {
     fileprivate var progressObject:Progress?
     
     fileprivate var progress:Double = 0.0
-    func forProgress(_ pro:Double) {
+    @objc func forProgress(_ pro:Double) {
         if pro != progress {
             progress = pro
             let indicator = self.indicator
@@ -787,16 +787,16 @@ class ProgressOverlay: UIView {
     
     func registerForNotifications() {
         let nc = NotificationCenter.default
-        nc.addObserver(self, selector: #selector(self.statusBarOrientationDidChange(_:)), name: NSNotification.Name.UIApplicationDidChangeStatusBarOrientation, object: nil)
+        nc.addObserver(self, selector: #selector(self.statusBarOrientationDidChange(_:)), name: UIApplication.didChangeStatusBarOrientationNotification, object: nil)
     }
     
     func unregisterFromNofifications(){
         let nc = NotificationCenter.default
-        nc.removeObserver(self, name: NSNotification.Name.UIApplicationDidChangeStatusBarOrientation, object: nil)
+        nc.removeObserver(self, name: UIApplication.didChangeStatusBarOrientationNotification, object: nil)
         
     }
     
-    func statusBarOrientationDidChange(_ nofification:Notification) {
+    @objc func statusBarOrientationDidChange(_ nofification:Notification) {
         
         if self.superview != nil {
             self.updateForCurrentOrientationAnimated(true)
@@ -890,7 +890,7 @@ class OverlayBackgroundView: UIView {
             let effectView = UIVisualEffectView.init(effect: effect)
             self.addSubview(effectView)
             effectView.frame = self.frame
-            effectView.autoresizingMask = UIViewAutoresizing.init(rawValue: UIViewAutoresizing.flexibleHeight.rawValue | UIViewAutoresizing.flexibleWidth.rawValue)
+            effectView.autoresizingMask = UIView.AutoresizingMask.init(rawValue: UIView.AutoresizingMask.flexibleHeight.rawValue | UIView.AutoresizingMask.flexibleWidth.rawValue)
             self.backgroundColor = self.color
             self.layer.allowsGroupOpacity = false
             self.effectView = effectView
@@ -947,7 +947,7 @@ class OverlayRoundedButton: UIButton {
     
     // MARK: - Color
     
-    override func setTitleColor(_ color: UIColor?, for state: UIControlState) {
+    override func setTitleColor(_ color: UIColor?, for state: UIControl.State) {
         super.setTitleColor(color, for: state)
         // Update related colors (更新相关颜色)
         
@@ -1110,7 +1110,7 @@ class OverlayBarProgressView: UIView {
             if (angle.isNaN){
                 angle = 0
             }
-            context?.addArc(center: CGPoint.init(x: rect.size.width - radius - 4, y:  rect.size.height/2), radius: radius, startAngle: CGFloat(M_PI), endAngle: angle, clockwise: false)
+            context?.addArc(center: CGPoint.init(x: rect.size.width - radius - 4, y:  rect.size.height/2), radius: radius, startAngle: CGFloat(Double.pi), endAngle: angle, clockwise: false)
             context?.addLine(to: CGPoint(x: amount, y: rect.size.height/2))
             
             context?.move(to: CGPoint(x: 4, y: rect.size.height/2))
@@ -1120,7 +1120,7 @@ class OverlayBarProgressView: UIView {
             if (angle.isNaN) {
                 angle = 0
             }
-            context?.addArc(center: CGPoint.init(x: rect.size.width - radius - 4, y:  rect.size.height/2), radius: radius, startAngle: -CGFloat(M_PI), endAngle: angle, clockwise: true)
+            context?.addArc(center: CGPoint.init(x: rect.size.width - radius - 4, y:  rect.size.height/2), radius: radius, startAngle: -CGFloat(Double.pi), endAngle: angle, clockwise: true)
             context?.addLine(to: CGPoint(x: amount, y: rect.size.height/2))
             
             context?.fillPath()
@@ -1234,8 +1234,8 @@ class OverlayRoundProgressView: UIView {
             processBackgroundPath.lineCapStyle = .butt
             let center = CGPoint(x: self.bounds.midX, y: self.bounds.midY)
             let radius = (self.bounds.size.width - lineWidth)/2
-            let startAngle:CGFloat = -CGFloat(M_PI/2) //90 degrees
-            var endAngle:CGFloat = (2 * CGFloat(M_PI)) + startAngle
+            let startAngle:CGFloat = -CGFloat(Double.pi/2) //90 degrees
+            var endAngle:CGFloat = (2 * CGFloat(Double.pi)) + startAngle
             processBackgroundPath.addArc(withCenter: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
             self.backgroundTintColor.set()
             processBackgroundPath.stroke()
@@ -1244,7 +1244,7 @@ class OverlayRoundProgressView: UIView {
             let  processPath = UIBezierPath.init()
             processPath.lineCapStyle = .square
             processPath.lineWidth = lineWidth
-            endAngle = self.progress * 2 * CGFloat(M_PI) + startAngle
+            endAngle = self.progress * 2 * CGFloat(Double.pi) + startAngle
             processPath.addArc(withCenter: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
             self.progressTintColor.set()
             processPath.stroke()
@@ -1259,13 +1259,13 @@ class OverlayRoundProgressView: UIView {
             self.backgroundTintColor.setFill()
             context?.setLineWidth(lineWidth)
             context?.strokeEllipse(in: circleRect)
-            let startAngle = -CGFloat(M_PI) / 2.0
+            let startAngle = -CGFloat(Double.pi) / 2.0
             let processPath = UIBezierPath()
             processPath.lineCapStyle = .butt
             processPath.lineWidth = lineWidth * 2.0
             
             let radius = self.bounds.width/2.0 - processPath.lineWidth / 2.0
-            let endAngle = self.progress * 2.0 * CGFloat(M_PI) + startAngle
+            let endAngle = self.progress * 2.0 * CGFloat(Double.pi) + startAngle
             processPath.addArc(withCenter: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
             context?.setBlendMode(.copy)
             self.progressTintColor.set()
